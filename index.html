@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Predecessor CZSK | Databáze hrdinů a Eternals</title>
+<style>
+:root{
+  --bg-void:#0a0e14;
+  --bg-panel:#11161f;
+  --bg-card:#161d29;
+  --line:#26303f;
+  --ember:#ff7a3d;
+  --ember-dim:#a3531f;
+  --cyan:#3ddcd4;
+  --gold:#e8c468;
+  --text:#e9edf2;
+  --text-dim:#8b97a8;
+  --assassin:#c64545;
+  --carry:#e8a23d;
+  --bruiser:#7a6dd1;
+  --frontline:#3d8be8;
+  --mage:#3ddcd4;
+  --support:#5fd17a;
+  --font-display:'Big Shoulders Display', Oswald, 'Arial Narrow', sans-serif;
+  --font-body:'Inter', system-ui, sans-serif;
+}
+@font-face{font-family:'Big Shoulders Display';src:local('Arial Narrow Bold');}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{background:var(--bg-void); color:var(--text); font-family:var(--font-body); min-height:100vh;}
+body{
+  background-image:
+    radial-gradient(ellipse 900px 500px at 15% -10%, rgba(255,122,61,0.10), transparent 60%),
+    radial-gradient(ellipse 900px 600px at 110% 10%, rgba(61,220,212,0.08), transparent 60%);
+  background-attachment:fixed;
+}
+a{color:inherit;}
+button{font-family:inherit; cursor:pointer;}
+
+/* ---------- HEADER ---------- */
+header{
+  position:sticky; top:0; z-index:50;
+  background:rgba(10,14,20,0.92); backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.header-inner{
+  max-width:1280px; margin:0 auto; padding:14px 24px;
+  display:flex; align-items:center; gap:24px; flex-wrap:wrap;
+}
+.logo{
+  font-family:var(--font-display); font-weight:800; font-size:26px; letter-spacing:0.5px;
+  text-transform:uppercase; display:flex; align-items:baseline; gap:8px;
+}
+.logo .accent{color:var(--ember);}
+.tag{font-size:11px; color:var(--text-dim); letter-spacing:2px; text-transform:uppercase; margin-top:-2px;}
+nav.tabs{display:flex; gap:6px; margin-left:auto;}
+.tabs button{
+  background:transparent; border:1px solid transparent; color:var(--text-dim);
+  font-size:13px; letter-spacing:1.5px; text-transform:uppercase; font-weight:600;
+  padding:10px 16px; border-radius:6px; transition:.15s;
+}
+.tabs button:hover{color:var(--text);}
+.tabs button.active{color:var(--bg-void); background:var(--ember);}
+.lang-toggle{
+  display:flex; border:1px solid var(--line); border-radius:6px; overflow:hidden;
+}
+.lang-toggle button{
+  background:var(--bg-panel); color:var(--text-dim); border:none; padding:8px 12px; font-size:12px; font-weight:700;
+}
+.lang-toggle button.active{background:var(--ember); color:var(--bg-void);}
+
+main{max-width:1280px; margin:0 auto; padding:28px 24px 80px;}
+.view{display:none;}
+.view.active{display:block;}
+
+/* ---------- HERO VIEW ---------- */
+.section-head{margin-bottom:20px;}
+.section-head h1{
+  font-family:var(--font-display); font-size:34px; text-transform:uppercase; letter-spacing:0.5px; font-weight:800;
+}
+.section-head p{color:var(--text-dim); font-size:14px; margin-top:4px; max-width:640px;}
+
+.toolbar{
+  display:flex; flex-wrap:wrap; gap:10px; align-items:flex-start;
+  background:var(--bg-panel); border:1px solid var(--line); border-radius:10px;
+  padding:16px; margin-bottom:24px;
+}
+.filter-group{display:flex; flex-direction:column; gap:6px;}
+.filter-group label{font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-dim); font-weight:700;}
+.chip-row{display:flex; flex-wrap:wrap; gap:6px; max-width:340px;}
+.chip{
+  font-size:12px; padding:6px 11px; border-radius:20px; border:1px solid var(--line);
+  background:var(--bg-card); color:var(--text-dim); font-weight:600; transition:.15s;
+}
+.chip:hover{border-color:var(--ember-dim);}
+.chip.active{background:var(--ember); border-color:var(--ember); color:#1a0d06;}
+.diff-stars{display:flex; gap:3px;}
+.diff-stars button{
+  width:26px; height:26px; border-radius:6px; border:1px solid var(--line); background:var(--bg-card);
+  color:var(--text-dim); font-size:13px; font-weight:700;
+}
+.diff-stars button.active{background:var(--gold); border-color:var(--gold); color:#241a05;}
+.search-box{flex:1; min-width:180px;}
+.search-box input{
+  width:100%; background:var(--bg-card); border:1px solid var(--line); border-radius:8px;
+  color:var(--text); padding:9px 12px; font-size:13px; outline:none;
+}
+.search-box input:focus{border-color:var(--ember);}
+.reset-btn{
+  align-self:flex-end; background:transparent; border:1px solid var(--line); color:var(--text-dim);
+  padding:9px 14px; border-radius:8px; font-size:12px; font-weight:700; margin-left:auto;
+}
+.reset-btn:hover{color:var(--ember); border-color:var(--ember-dim);}
+.result-count{font-size:12px; color:var(--text-dim); margin-bottom:14px;}
+
+.hero-grid{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:14px;
+}
+.hero-card{
+  background:var(--bg-card); border:1px solid var(--line); border-radius:12px; padding:14px;
+  cursor:pointer; transition:.18s; position:relative; overflow:hidden;
+}
+.hero-card:hover{transform:translateY(-3px); border-color:var(--ember-dim); box-shadow:0 8px 24px rgba(0,0,0,0.35);}
+.hero-card .badge-flex{
+  position:absolute; top:8px; right:8px; font-size:9px; font-weight:800; letter-spacing:0.5px;
+  background:var(--gold); color:#241a05; padding:2px 6px; border-radius:4px; text-transform:uppercase;
+}
+.hero-icon{
+  width:100%; aspect-ratio:1; border-radius:10px; display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-size:30px; font-weight:800; color:#fff; margin-bottom:10px;
+  position:relative; overflow:hidden;
+}
+.hero-icon::after{content:''; position:absolute; inset:0; background:linear-gradient(160deg, rgba(255,255,255,0.18), transparent 55%);}
+.hero-icon .stars{
+  position:absolute; bottom:5px; right:6px; font-size:9px; letter-spacing:1px; color:rgba(255,255,255,0.85); font-weight:700;
+}
+.hero-name{font-size:14px; font-weight:800; text-transform:uppercase; letter-spacing:0.3px;}
+.hero-meta{font-size:11px; color:var(--text-dim); margin-top:2px;}
+.class-dot{display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:5px;}
+
+/* class colors helper classes applied via JS style */
+
+/* ---------- MODAL ---------- */
+.modal-overlay{
+  position:fixed; inset:0; background:rgba(5,7,11,0.78); backdrop-filter:blur(4px);
+  display:none; align-items:center; justify-content:center; z-index:200; padding:20px;
+}
+.modal-overlay.active{display:flex;}
+.modal{
+  background:var(--bg-panel); border:1px solid var(--line); border-radius:16px; max-width:760px; width:100%;
+  max-height:88vh; overflow-y:auto; position:relative;
+}
+.modal-close{
+  position:absolute; top:14px; right:14px; background:var(--bg-card); border:1px solid var(--line);
+  color:var(--text); width:32px; height:32px; border-radius:50%; font-size:16px; z-index:5;
+}
+.modal-head{
+  display:flex; gap:18px; padding:28px 28px 18px; align-items:center; border-bottom:1px solid var(--line);
+}
+.modal-icon{
+  width:84px; height:84px; border-radius:14px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-size:34px; font-weight:800; color:#fff; position:relative; overflow:hidden;
+}
+.modal-icon::after{content:''; position:absolute; inset:0; background:linear-gradient(160deg, rgba(255,255,255,0.18), transparent 55%);}
+.modal-title h2{font-family:var(--font-display); font-size:28px; text-transform:uppercase; font-weight:800;}
+.modal-title .tagrow{display:flex; gap:8px; margin-top:6px; flex-wrap:wrap;}
+.tagpill{font-size:11px; padding:3px 10px; border-radius:14px; border:1px solid var(--line); color:var(--text-dim); font-weight:700;}
+.modal-body{padding:22px 28px 30px; display:grid; grid-template-columns:1.1fr 1fr; gap:28px;}
+@media (max-width:620px){.modal-body{grid-template-columns:1fr;}}
+.modal-desc{font-size:13.5px; line-height:1.6; color:#cdd5e0;}
+.flex-note{
+  margin-top:12px; background:rgba(232,196,104,0.08); border:1px solid rgba(232,196,104,0.35);
+  border-radius:8px; padding:10px 12px; font-size:12.5px; color:var(--gold); line-height:1.5;
+}
+.radar-wrap{display:flex; flex-direction:column; align-items:center;}
+.radar-label{font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-dim); margin-bottom:8px; font-weight:700;}
+
+/* ---------- ETERNALS ---------- */
+.eternal-grid{display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:16px;}
+.eternal-card{
+  background:var(--bg-card); border:1px solid var(--line); border-radius:14px; padding:18px; cursor:pointer;
+  transition:.18s; position:relative;
+}
+.eternal-card:hover{border-color:var(--cyan); transform:translateY(-3px);}
+.eternal-group-tag{font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--cyan); font-weight:800;}
+.eternal-name{font-family:var(--font-display); font-size:22px; font-weight:800; margin-top:6px; text-transform:uppercase;}
+.eternal-major-preview{font-size:12px; color:var(--text-dim); margin-top:8px; line-height:1.5;}
+.group-section{margin-bottom:36px;}
+.group-title{
+  font-family:var(--font-display); font-size:16px; text-transform:uppercase; letter-spacing:2px;
+  color:var(--cyan); margin-bottom:4px; font-weight:700;
+}
+.group-desc{font-size:12.5px; color:var(--text-dim); margin-bottom:14px; max-width:680px;}
+
+.eternal-modal-body{padding:22px 28px 30px;}
+.blessing-block{margin-top:18px;}
+.blessing-block h4{font-size:12px; text-transform:uppercase; letter-spacing:1.5px; color:var(--text-dim); margin-bottom:8px;}
+.major-box{
+  background:rgba(61,220,212,0.07); border:1px solid rgba(61,220,212,0.3); border-radius:10px;
+  padding:14px 16px; font-size:13.5px; line-height:1.55;
+}
+.minor-set{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+@media (max-width:600px){.minor-set{grid-template-columns:1fr;}}
+.minor-item{
+  background:var(--bg-card); border:1px solid var(--line); border-radius:8px; padding:10px 12px; font-size:12.5px; line-height:1.5;
+}
+.minor-item b{color:var(--gold);}
+.synergy-row{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
+.synergy-chip{
+  font-size:11px; padding:5px 10px; border-radius:14px; background:var(--bg-card); border:1px solid var(--line); font-weight:700;
+}
+
+/* ---------- QUIZ ---------- */
+.quiz-launch-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:10px;}
+@media (max-width:680px){.quiz-launch-grid{grid-template-columns:1fr;}}
+.quiz-card{
+  background:var(--bg-card); border:1px solid var(--line); border-radius:14px; padding:24px; cursor:pointer; transition:.18s;
+}
+.quiz-card:hover{border-color:var(--ember); transform:translateY(-3px);}
+.quiz-card h3{font-family:var(--font-display); font-size:22px; text-transform:uppercase; margin-bottom:6px;}
+.quiz-card p{font-size:13px; color:var(--text-dim); line-height:1.5;}
+.lane-pick-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; margin-top:16px;}
+.lane-pick{
+  background:var(--bg-card); border:1px solid var(--line); border-radius:10px; padding:16px 10px; text-align:center;
+  font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:0.5px;
+}
+.lane-pick:hover{border-color:var(--ember);}
+.quiz-stage{display:none;}
+.quiz-stage.active{display:block;}
+.quiz-progress{height:4px; background:var(--bg-card); border-radius:2px; margin-bottom:24px; overflow:hidden;}
+.quiz-progress-bar{height:100%; background:var(--ember); width:0%; transition:.3s;}
+.quiz-question{
+  background:var(--bg-panel); border:1px solid var(--line); border-radius:14px; padding:30px;
+}
+.quiz-question h3{font-size:20px; margin-bottom:18px; font-weight:700;}
+.quiz-options{display:flex; flex-direction:column; gap:10px;}
+.quiz-opt{
+  background:var(--bg-card); border:1px solid var(--line); border-radius:10px; padding:14px 16px;
+  text-align:left; font-size:14px; color:var(--text);
+}
+.quiz-opt:hover{border-color:var(--ember);}
+.quiz-result{padding:10px;}
+.result-hero-card{
+  display:flex; gap:18px; align-items:center; background:var(--bg-card); border:1px solid var(--ember-dim);
+  border-radius:14px; padding:20px; margin-bottom:14px; cursor:pointer;
+}
+.back-link{font-size:12px; color:var(--text-dim); margin-bottom:18px; display:inline-block;}
+.back-link:hover{color:var(--ember);}
+
+footer{text-align:center; padding:30px; color:var(--text-dim); font-size:11px; border-top:1px solid var(--line);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <div class="logo">PREDECESSOR<span class="accent">.</span>CZSK</div>
+      <div class="tag" data-i18n="tagline">Databáze hrdinů &amp; Eternals</div>
+    </div>
+    <nav class="tabs">
+      <button class="tab-btn active" data-view="heroes" data-i18n="navHeroes">Hrdinové</button>
+      <button class="tab-btn" data-view="eternals" data-i18n="navEternals">Eternals</button>
+      <button class="tab-btn" data-view="quiz" data-i18n="navQuiz">Kvízy</button>
+    </nav>
+    <div class="lang-toggle">
+      <button id="lang-cz" class="active">CZ</button>
+      <button id="lang-sk">SK</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============ HEROES VIEW ============ -->
+  <section class="view active" id="view-heroes">
+    <div class="section-head">
+      <h1 data-i18n="heroesH1">Databáze hrdinů</h1>
+      <p data-i18n="heroesP">Filtruj podle role, třídy, herního stylu a obtížnosti. Klikni na hrdinu pro detail a profil atributů.</p>
+    </div>
+
+    <div class="toolbar">
+      <div class="filter-group">
+        <label data-i18n="fRole">Role</label>
+        <div class="chip-row" id="filter-role"></div>
+      </div>
+      <div class="filter-group">
+        <label data-i18n="fClass">Třída</label>
+        <div class="chip-row" id="filter-class"></div>
+      </div>
+      <div class="filter-group">
+        <label data-i18n="fStyle">Herní styl</label>
+        <div class="chip-row" id="filter-style"></div>
+      </div>
+      <div class="filter-group">
+        <label data-i18n="fFlex">Speciální</label>
+        <div class="chip-row" id="filter-flex"></div>
+      </div>
+      <div class="filter-group">
+        <label data-i18n="fDiff">Obtížnost</label>
+        <div class="diff-stars" id="filter-diff"></div>
+      </div>
+      <div class="filter-group search-box">
+        <label data-i18n="fSearch">Hledat</label>
+        <input type="text" id="search-input" data-i18n-ph="searchPh" placeholder="Jméno hrdiny...">
+      </div>
+      <button class="reset-btn" id="reset-filters" data-i18n="reset">Zrušit filtry</button>
+    </div>
+
+    <div class="result-count" id="result-count"></div>
+    <div class="hero-grid" id="hero-grid"></div>
+  </section>
+
+  <!-- ============ ETERNALS VIEW ============ -->
+  <section class="view" id="view-eternals">
+    <div class="section-head">
+      <h1 data-i18n="eternalsH1">Eternals</h1>
+      <p data-i18n="eternalsP">12 božstev z patche 1.14 — Harbingers of Ruin. Vyber si jedno v draftu, získáš Major Blessing a 2 Minor Blessings ze dvou setů.</p>
+    </div>
+    <div id="eternal-groups"></div>
+  </section>
+
+  <!-- ============ QUIZ VIEW ============ -->
+  <section class="view" id="view-quiz">
+    <div class="section-head">
+      <h1 data-i18n="quizH1">Najdi svého hrdinu</h1>
+      <p data-i18n="quizP">Odpověz na pár otázek a doporučíme ti hrdiny, kteří odpovídají tvému stylu.</p>
+    </div>
+
+    <div id="quiz-launch" class="quiz-stage active">
+      <div class="quiz-launch-grid">
+        <div class="quiz-card" id="quiz-general-btn">
+          <h3 data-i18n="quizGeneralTitle">Obecný kvíz</h3>
+          <p data-i18n="quizGeneralDesc">Nevíš, co hrát? Pár otázek o tvém stylu a vyplivneme ti hrdiny napříč všemi rolemi.</p>
+        </div>
+        <div class="quiz-card" id="quiz-lane-btn">
+          <h3 data-i18n="quizLaneTitle">Kvíz pro konkrétní lane</h3>
+          <p data-i18n="quizLaneDesc">Vyber lane, na kterou chceš hrát, a najdeme hrdinu přímo pro ni.</p>
+        </div>
+      </div>
+      <div id="lane-select" style="display:none;">
+        <span class="back-link" id="lane-back" data-i18n="backLink">← Zpět na výběr kvízu</span>
+        <div class="lane-pick-grid" id="lane-pick-grid"></div>
+      </div>
+    </div>
+
+    <div class="quiz-stage" id="quiz-running">
+      <span class="back-link" id="quiz-cancel" data-i18n="backLink">← Zpět na výběr kvízu</span>
+      <div class="quiz-progress"><div class="quiz-progress-bar" id="quiz-progress-bar"></div></div>
+      <div class="quiz-question" id="quiz-question-box"></div>
+    </div>
+
+    <div class="quiz-stage" id="quiz-result">
+      <span class="back-link" id="quiz-restart" data-i18n="backLink2">← Zkusit znovu</span>
+      <h2 style="font-family:var(--font-display); text-transform:uppercase; margin-bottom:16px;" data-i18n="quizResultTitle">Tví hrdinové</h2>
+      <div id="quiz-result-list"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>Predecessor CZSK · Fan-made komunitní nástroj · Data dle patche 1.14 „Harbingers of Ruin” · Predecessor © Omeda Studios</footer>
+
+<div class="modal-overlay" id="hero-modal-overlay">
+  <div class="modal" id="hero-modal"></div>
+</div>
+<div class="modal-overlay" id="eternal-modal-overlay">
+  <div class="modal" id="eternal-modal"></div>
+</div>
+
+<script>
+/* =========================================================
+   I18N — malý slovník pro UI; herní obsah zůstává shodný CZ/SK
+   ========================================================= */
+const I18N = {
+  cz:{
+    tagline:"Databáze hrdinů & Eternals", navHeroes:"Hrdinové", navEternals:"Eternals", navQuiz:"Kvízy",
+    heroesH1:"Databáze hrdinů", heroesP:"Filtruj podle role, třídy, herního stylu a obtížnosti. Klikni na hrdinu pro detail a profil atributů.",
+    fRole:"Role", fClass:"Třída", fStyle:"Herní styl", fFlex:"Speciální", fDiff:"Obtížnost", fSearch:"Hledat",
+    searchPh:"Jméno hrdiny...", reset:"Zrušit filtry",
+    eternalsH1:"Eternals", eternalsP:"12 božstev z patche 1.14 — Harbingers of Ruin. Vyber si jedno v draftu, získáš Major Blessing a 2 Minor Blessings ze dvou setů.",
+    quizH1:"Najdi svého hrdinu", quizP:"Odpověz na pár otázek a doporučíme ti hrdiny, kteří odpovídají tvému stylu.",
+    quizGeneralTitle:"Obecný kvíz", quizGeneralDesc:"Nevíš, co hrát? Pár otázek o tvém stylu a vyplivneme ti hrdiny napříč všemi rolemi.",
+    quizLaneTitle:"Kvíz pro konkrétní lane", quizLaneDesc:"Vyber lane, na kterou chceš hrát, a najdeme hrdinu přímo pro ni.",
+    backLink:"← Zpět na výběr kvízu", backLink2:"← Zkusit znovu", quizResultTitle:"Tví hrdinové",
+    roleAll:"Vše", classAll:"Vše", styleAll:"Vše",
+    role_Jungle:"Jungle", role_Mid:"Midlane", role_Off:"Offlane", role_Carry:"Carry", role_Support:"Support",
+    class_Assassin:"Assassin", class_Carry:"Carry", class_Bruiser:"Bruiser", class_Frontline:"Frontline", class_Mage:"Mage", class_Support:"Support",
+    style_basic:"Basic Attack", style_ability:"Ability Damage", style_tank:"Tank", style_utility:"Utility / CC", style_hybrid:"Hybrid",
+    flexAll:"Vše", flexOnly:"Flex Pick", noResults:"Žádný hrdina neodpovídá filtrům.",
+    resultCountTpl:n=>`Zobrazeno ${n} hrdinů`,
+    flexNoteLabel:"Flex pick:", attrLabel:"Profil atributů",
+    attr_dmg:"Damage", attr_tank:"Tankness", attr_mob:"Mobilita", attr_util:"Utility",
+    diffLabel:"Obtížnost",
+    eternalMajor:"Major Blessing", eternalMinor1:"Minor Blessings — sada 1", eternalMinor2:"Minor Blessings — sada 2",
+    eternalSynergy:"Sedí na tyto hrdiny",
+    quizQGeneral:[
+      {q:"Co tě nejvíc baví v boji?", opts:[
+        {t:"Trhat nepřátele na kusy zblízka", v:{Assassin:2,Bruiser:1}},
+        {t:"Sázet kombo schopností a komba na dálku", v:{Mage:2}},
+        {t:"Vystát v první linii a chránit tým", v:{Frontline:2,Support:1}},
+        {t:"Pravidelně dávat damage základním útokem", v:{Carry:2}}
+      ]},
+      {q:"Jak se cítíš v týmovkách?", opts:[
+        {t:"Skáču do středu a řeším to sám", v:{Bruiser:2,Assassin:1}},
+        {t:"Drbu z dálky a hlídám si pozici", v:{Mage:1,Carry:1}},
+        {t:"Léčím a podporuji spoluhráče", v:{Support:2}},
+        {t:"Tankuju a vytvářím prostor pro tým", v:{Frontline:2}}
+      ]},
+      {q:"Jaká obtížnost ti vyhovuje?", opts:[
+        {t:"Co nejjednodušší, chci jen hrát", v:{diff:1}},
+        {t:"Středně náročné, chci se trochu zapotit", v:{diff:3}},
+        {t:"Co nejtěžší, chci mechaniky a skill cap", v:{diff:5}}
+      ]},
+      {q:"Jak rád zasahuješ do hry?", opts:[
+        {t:"Z bezpečné vzdálenosti", v:{rangePref:"ranged"}},
+        {t:"Zblízka, ať to bolí", v:{rangePref:"melee"}},
+        {t:"Je mi to jedno", v:{rangePref:"any"}}
+      ]}
+    ],
+    quizQLane:{
+      Jungle:[{q:"Co od junglera čekáš?", opts:[
+        {t:"Rychlé clearování a ganky", v:{Assassin:2}},
+        {t:"Odolnost a kontrola objektivů", v:{Bruiser:2,Frontline:1}},
+        {t:"Flexibilní hybridní styl", v:{Carry:1,Mage:1}}
+      ]}],
+      Mid:[{q:"Jaký styl midlanera chceš?", opts:[
+        {t:"Burst mág, co spálí na dálku", v:{Mage:2}},
+        {t:"Mobilní assassin, co dělá picky", v:{Assassin:2}},
+        {t:"Flexibilní carry s basic attackem", v:{Carry:2}}
+      ]}],
+      Off:[{q:"Co má dělat tvůj offlaner?", opts:[
+        {t:"Tankovat a držet linii", v:{Frontline:2}},
+        {t:"Bít se a vyhrávat 1v1", v:{Bruiser:2}},
+        {t:"Dělat damage a punishovat chyby", v:{Assassin:1,Mage:1}}
+      ]}],
+      Carry:[{q:"Jaký typ carry tě láká?", opts:[
+        {t:"On-hit, co roste celý zápas", v:{style:"basic"}},
+        {t:"Burst, co zabíjí rychle", v:{style:"hybrid"}},
+        {t:"Bezpečný poke z dálky", v:{style:"ability"}}
+      ]}],
+      Support:[{q:"Jaký support chceš hrát?", opts:[
+        {t:"Healer, co udrží tým naživu", v:{Support:2}},
+        {t:"Tank, co chrání carry", v:{Frontline:2}},
+        {t:"Engage support s CC", v:{Support:1,Bruiser:1}}
+      ]}]
+    },
+    laneNames:{Jungle:"Jungle",Mid:"Midlane",Off:"Offlane",Carry:"Carry",Support:"Support"},
+    next:"Další", finish:"Zobrazit výsledek"
+  },
+  sk:{
+    tagline:"Databáza hrdinov & Eternals", navHeroes:"Hrdinovia", navEternals:"Eternals", navQuiz:"Kvízy",
+    heroesH1:"Databáza hrdinov", heroesP:"Filtruj podľa role, triedy, herného štýlu a obtiažnosti. Klikni na hrdinu pre detail a profil atribútov.",
+    fRole:"Rola", fClass:"Trieda", fStyle:"Herný štýl", fFlex:"Špeciálne", fDiff:"Obtiažnosť", fSearch:"Hľadať",
+    searchPh:"Meno hrdinu...", reset:"Zrušiť filtre",
+    eternalsH1:"Eternals", eternalsP:"12 božstiev z patchu 1.14 — Harbingers of Ruin. Vyber si jedno v drafte, získaš Major Blessing a 2 Minor Blessings z dvoch setov.",
+    quizH1:"Nájdi svojho hrdinu", quizP:"Odpovedz na pár otázok a odporučíme ti hrdinov, ktorí sedia tvojmu štýlu.",
+    quizGeneralTitle:"Všeobecný kvíz", quizGeneralDesc:"Nevieš čo hrať? Pár otázok o tvojom štýle a vypľujeme ti hrdinov cez všetky role.",
+    quizLaneTitle:"Kvíz pre konkrétnu lane", quizLaneDesc:"Vyber lane, na ktorú chceš hrať, a nájdeme hrdinu priamo pre ňu.",
+    backLink:"← Späť na výber kvízu", backLink2:"← Skúsiť znova", quizResultTitle:"Tvoji hrdinovia",
+    roleAll:"Všetko", classAll:"Všetko", styleAll:"Všetko",
+    role_Jungle:"Jungle", role_Mid:"Midlane", role_Off:"Offlane", role_Carry:"Carry", role_Support:"Support",
+    class_Assassin:"Assassin", class_Carry:"Carry", class_Bruiser:"Bruiser", class_Frontline:"Frontline", class_Mage:"Mage", class_Support:"Support",
+    style_basic:"Basic Attack", style_ability:"Ability Damage", style_tank:"Tank", style_utility:"Utility / CC", style_hybrid:"Hybrid",
+    flexAll:"Všetko", flexOnly:"Flex Pick", noResults:"Žiadny hrdina nezodpovedá filtrom.",
+    resultCountTpl:n=>`Zobrazených ${n} hrdinov`,
+    flexNoteLabel:"Flex pick:", attrLabel:"Profil atribútov",
+    attr_dmg:"Damage", attr_tank:"Tankness", attr_mob:"Mobilita", attr_util:"Utility",
+    diffLabel:"Obtiažnosť",
+    eternalMajor:"Major Blessing", eternalMinor1:"Minor Blessings — set 1", eternalMinor2:"Minor Blessings — set 2",
+    eternalSynergy:"Sedí na týchto hrdinov",
+    quizQGeneral:[
+      {q:"Čo ťa najviac baví v boji?", opts:[
+        {t:"Trhať nepriateľov na kusy zblízka", v:{Assassin:2,Bruiser:1}},
+        {t:"Sypať kombá schopností na diaľku", v:{Mage:2}},
+        {t:"Stáť v prvej línii a chrániť tím", v:{Frontline:2,Support:1}},
+        {t:"Pravidelne dávať damage základným útokom", v:{Carry:2}}
+      ]},
+      {q:"Ako sa cítiš v tímovkách?", opts:[
+        {t:"Skáčem do stredu a riešim to sám", v:{Bruiser:2,Assassin:1}},
+        {t:"Pokujem z diaľky a strážim si pozíciu", v:{Mage:1,Carry:1}},
+        {t:"Liečim a podporujem spoluhráčov", v:{Support:2}},
+        {t:"Tankujem a vytváram priestor pre tím", v:{Frontline:2}}
+      ]},
+      {q:"Aká obtiažnosť ti vyhovuje?", opts:[
+        {t:"Čo najjednoduchšie, chcem len hrať", v:{diff:1}},
+        {t:"Stredne náročné, chcem sa trochu zapotiť", v:{diff:3}},
+        {t:"Čo najťažšie, chcem mechaniky a skill cap", v:{diff:5}}
+      ]},
+      {q:"Ako rád zasahuješ do hry?", opts:[
+        {t:"Z bezpečnej vzdialenosti", v:{rangePref:"ranged"}},
+        {t:"Zblízka, nech to bolí", v:{rangePref:"melee"}},
+        {t:"Je mi to jedno", v:{rangePref:"any"}}
+      ]}
+    ],
+    quizQLane:{
+      Jungle:[{q:"Čo od junglera čakáš?", opts:[
+        {t:"Rýchle clearovanie a ganky", v:{Assassin:2}},
+        {t:"Odolnosť a kontrola objektov", v:{Bruiser:2,Frontline:1}},
+        {t:"Flexibilný hybridný štýl", v:{Carry:1,Mage:1}}
+      ]}],
+      Mid:[{q:"Aký štýl midlanera chceš?", opts:[
+        {t:"Burst mág, čo spáli na diaľku", v:{Mage:2}},
+        {t:"Mobilný assassin, čo robí picky", v:{Assassin:2}},
+        {t:"Flexibilný carry so basic attackom", v:{Carry:2}}
+      ]}],
+      Off:[{q:"Čo má robiť tvoj offlaner?", opts:[
+        {t:"Tankovať a držať líniu", v:{Frontline:2}},
+        {t:"Biť sa a vyhrávať 1v1", v:{Bruiser:2}},
+        {t:"Robiť damage a punishovať chyby", v:{Assassin:1,Mage:1}}
+      ]}],
+      Carry:[{q:"Aký typ carry ťa láka?", opts:[
+        {t:"On-hit, ktorý rastie celý zápas", v:{style:"basic"}},
+        {t:"Burst, ktorý zabíja rýchlo", v:{style:"hybrid"}},
+        {t:"Bezpečný poke z diaľky", v:{style:"ability"}}
+      ]}],
+      Support:[{q:"Akého supporta chceš hrať?", opts:[
+        {t:"Healer, ktorý udrží tím nažive", v:{Support:2}},
+        {t:"Tank, ktorý chráni carry", v:{Frontline:2}},
+        {t:"Engage support s CC", v:{Support:1,Bruiser:1}}
+      ]}]
+    },
+    laneNames:{Jungle:"Jungle",Mid:"Midlane",Off:"Offlane",Carry:"Carry",Support:"Support"},
+    next:"Ďalšia", finish:"Zobraziť výsledok"
+  }
+};
+let LANG = 'cz';
+function t(key){ return I18N[LANG][key]; }
+
+/* =========================================================
+   DATA — HRDINOVÉ
+   role: primární role | role2: flex role (nepovinné)
+   class: Assassin/Carry/Bruiser/Frontline/Mage/Support
+   style: basic / ability / tank / utility / hybrid
+   diff: 1-5 | flexNote: text vysvětlující flex pick
+   ========================================================= */
+const CLASS_COLOR = {
+  Assassin:'#c64545', Carry:'#e8a23d', Bruiser:'#7a6dd1',
+  Frontline:'#3d8be8', Mage:'#3ddcd4', Support:'#5fd17a'
+};
+const ROLE_LIST = ['Jungle','Mid','Off','Carry','Support'];
+const CLASS_LIST = ['Assassin','Carry','Bruiser','Frontline','Mage','Support'];
+const STYLE_LIST = ['basic','ability','tank','utility','hybrid'];
+
+const HEROES = [
+{name:"Adele", role:"Support", role2:"Off", class:"Frontline", style:"hybrid", diff:3,
+  desc:"Ohnivá rytířka s mečem a štítem, flexibilní mezi support a offlane podle buildu."},
+{name:"Akeron", role:"Off", role2:"Jungle", class:"Bruiser", style:"hybrid", diff:3,
+  desc:"Pavoučí lovec s jedem a sítěmi, přirozeně flexibilní mezi offlane a jungle."},
+{name:"Argus", role:"Mid", class:"Mage", style:"ability", diff:3,
+  desc:"Kosmický mág s konzistentním poke damagem a slušným zásahem na dálku."},
+{name:"Aurora", role:"Mid", class:"Mage", style:"ability", diff:3,
+  desc:"Ledová bojovnice, mix mage a fighter — zpomaluje a kontroluje souboje."},
+{name:"Bayle", role:"Off", class:"Bruiser", style:"hybrid", diff:3,
+  desc:"Vlčí berserker se sebepoškozujícím healem, silný v drawn-out 1v1."},
+{name:"Boris", role:"Jungle", class:"Bruiser", style:"tank", diff:3,
+  desc:"Medvědí časový strážce, odolný jungler s healem a kontrolou."},
+{name:"Countess", role:"Jungle", role2:"Off", class:"Assassin", style:"hybrid", diff:4,
+  desc:"Upíří assassin s lifestealem, dobře funguje jako jungler i offlaner."},
+{name:"Crunch", role:"Off", class:"Bruiser", style:"hybrid", diff:3,
+  desc:"Robotický boxer s comboy levá-pravá, snowballuje díky exekucím."},
+{name:"Dekker", role:"Support", class:"Support", style:"utility", diff:2,
+  desc:"Technička s drony, poskytuje zpomalení, vidění a kontrolu zóny."},
+{name:"Drongo", role:"Carry", class:"Carry", style:"basic", diff:3,
+  desc:"Klasický on-hit/crit carry, slabší early, drtí v late game."},
+{name:"Eden", role:"Carry", role2:"Mid/Off", class:"Carry", style:"hybrid", diff:3, flex:true,
+  flexNote:"Primárně Carry, ale výborně funguje i na Mid nebo Off díky mobilitě a poke kitu.",
+  desc:"Okřídlená lovkyně se dvěma formami zbraně — ranged poke i melee dash."},
+{name:"Feng Mao", role:"Off", class:"Assassin", style:"hybrid", diff:3,
+  desc:"Mobilní samuraj s execute ultimátem, skvělý na dive a úniky."},
+{name:"Gadget", role:"Mid", role2:"Support", class:"Mage", style:"ability", diff:3, flex:true,
+  flexNote:"Dobrá poke mage na midu, ale s utility kitem zvládá i support lépe než Gideon.",
+  desc:"Mechanická myška se zónovou kontrolou, míny a teleporty."},
+{name:"Gideon", role:"Mid", class:"Mage", style:"ability", diff:4,
+  desc:"Temný mág s burst comby a Black Hole ultimátem, silný pick/burst."},
+{name:"Greystone", role:"Off", class:"Frontline", style:"tank", diff:2,
+  desc:"Kamenný strážce, jednoduchý a odolný frontliner s knockupy."},
+{name:"GRIM.exe", role:"Mid", class:"Mage", style:"ability", diff:3,
+  desc:"Glitchovaný robot s displacementem a štíty, kontroluje pozici nepřátel."},
+{name:"Grux", role:"Off", class:"Bruiser", style:"hybrid", diff:3,
+  desc:"Brutální válečník s healem z poškození, solidní sustain fighter."},
+{name:"Howitzer", role:"Mid", class:"Mage", style:"ability", diff:3,
+  desc:"Dělostřelecký mág s extrémním dosahem a zónovou kontrolou."},
+{name:"Iggy & Scorch", role:"Mid", role2:"Support", class:"Mage", style:"ability", diff:3, flex:true,
+  flexNote:"Dá se hrát support, ale díky AoE poke umí přebrat farmu carry — hraj opatrně.",
+  desc:"Žhář s ohnivým mazlíčkem, area denial a poke přes Molotov a Inferno."},
+{name:"Kallari", role:"Jungle", class:"Assassin", style:"hybrid", diff:5,
+  desc:"Stealth assassin s dvojitým skokem, vysoký skill cap, brutální v rukou experta."},
+{name:"Khaimera", role:"Jungle", role2:"Off", class:"Bruiser", style:"hybrid", diff:3, flex:true,
+  flexNote:"Standardní jungler, ale díky sustainu a CC zvládá i offlane.",
+  desc:"Lovec duchů se třemi formami zbraní, agresivní ganky a soubojová síla."},
+{name:"Kira", role:"Carry", class:"Carry", style:"basic", diff:3,
+  desc:"Dvouhlavňová střelkyně, single-target dueling carry bez většího utility."},
+{name:"Kwang", role:"Off", class:"Bruiser", style:"hybrid", diff:3,
+  desc:"Nebeský samuraj se silným zásahem a mobilitou — dive a damage."},
+{name:"Legion", role:"Off", role2:"Mid", class:"Frontline", style:"hybrid", diff:3, flex:true,
+  flexNote:"Nový hrdina z patche 1.14 — funguje na offlane i midu díky dlouhému dosahu pušky.",
+  desc:"Imperiální voják s kulometem, minami a granáty, solidní zónová kontrola."},
+{name:"Lt. Belica", role:"Mid", class:"Mage", style:"ability", diff:4,
+  desc:"Vojenská mág s dronem a anti-mana burstem, silná proti jiným mágům."},
+{name:"Maco", role:"Mid", role2:"Support", class:"Support", style:"utility", diff:3, flex:true,
+  flexNote:"Hravý heal/utility kit ho posouvá i na mid jako poke/peel hybrid.",
+  desc:"Maskovaný entertainer s healem, mobilitou a knockback ultimátem."},
+{name:"Morigesh", role:"Mid", role2:"Support", class:"Mage", style:"ability", diff:3, flex:true,
+  flexNote:"DoT a curse kit umožňují hrát ji i jako poke/peel support.",
+  desc:"Roj hmyzu a kletby — konzistentní DoT damage na dálku."},
+{name:"Mourn", role:"Support", role2:"Off", class:"Support", style:"utility", diff:3, flex:true,
+  flexNote:"Sustain a abduct hook fungují i v offlane proti melee matchupům.",
+  desc:"Sběratel duší s healem výměnou za odebrání zdraví, silný v sustain duelech."},
+{name:"Murdock", role:"Carry", class:"Carry", style:"hybrid", diff:3,
+  desc:"Bounty hunter s trapy a globálním ultimátem, dobrý dosah a utility."},
+{name:"Muriel", role:"Support", class:"Frontline", style:"utility", diff:2,
+  desc:"Andělská ochránkyně se štíty a healy, klasický peel support."},
+{name:"Narbash", role:"Support", class:"Support", style:"utility", diff:2,
+  desc:"Bubnující šaman s healem, CC a damage reduction — staple support."},
+{name:"Neon", role:"Carry", class:"Carry", style:"basic", diff:3,
+  desc:"Datový lovec s hackovacím kitem, mobilní carry s utility prvky."},
+{name:"Phase", role:"Support", class:"Support", style:"utility", diff:3,
+  desc:"Astrální entita propojující se s spojenci na dálku, unikátní peel utility."},
+{name:"Rampage", role:"Jungle", role2:"Support", class:"Bruiser", style:"tank", diff:2, flex:true,
+  flexNote:"Rumble (odražený kámen) dává slušný stun, takže zvládá i support s engage kitem.",
+  desc:"Obří jungle monstrum, tankovitý a jednoduchý na hraní, silné objektivy."},
+{name:"Renna", role:"Mid", role2:"Support", class:"Mage", style:"ability", diff:3, flex:true,
+  flexNote:"Crowd control a debuffy z ní dělají solidní poke/peel support.",
+  desc:"Strašidelná mág se zpomalením a strachem, dobrá kontrola souboje."},
+{name:"Revenant", role:"Carry", role2:"Mid", class:"Carry", style:"hybrid", diff:5,
+  desc:"High-risk high-reward duelist carry bez utility — vyžaduje hodně skillu."},
+{name:"Riktor", role:"Support", role2:"Off", class:"Frontline", style:"utility", diff:3, flex:true,
+  flexNote:"Hook a silence izolují cíle i v offlane, ne jen v supportu.",
+  desc:"Řetězový mučitel s hookem a silence — isolation a peel support."},
+{name:"Serath", role:"Off", class:"Bruiser", style:"hybrid", diff:3,
+  desc:"Andělská bojovnice s létáním a heaven combem, mix damage a mobility."},
+{name:"Sevarog", role:"Jungle", class:"Bruiser", style:"tank", diff:3,
+  desc:"Strašidelný rytíř s omnivampem a stacking pasivkou, sustain tank/fighter."},
+{name:"Shinbi", role:"Jungle", class:"Assassin", style:"hybrid", diff:4,
+  desc:"Liščí duch s teleporty mezi liniemi, vysoká mobilita a burst."},
+{name:"Skylar", role:"Carry", role2:"Mid", class:"Carry", style:"basic", diff:4,
+  desc:"Odstřelovačka s granáty a stealthem, mobilní poke carry."},
+{name:"Sparrow", role:"Carry", role2:"Mid", class:"Carry", style:"basic", diff:5,
+  desc:"Lukostřelkyně se silným AoE, ale slabší v čistém 1v1 — utility z mobility."},
+{name:"Steel", role:"Off", class:"Frontline", style:"tank", diff:2,
+  desc:"Klasický tank s neustálými stuny, staple pick do téměř každé meta."},
+{name:"Terra", role:"Off", role2:"Support", class:"Frontline", style:"tank", diff:2, flex:true,
+  flexNote:"Tankovitý kit s heal-přes-rostlinky funguje skvěle i jako support.",
+  desc:"Golem z přírody se sebeobnovou a odolností, solidní frontliner."},
+{name:"The Fey", role:"Mid", role2:"Support", class:"Mage", style:"ability", diff:3, flex:true,
+  flexNote:"Crowd control a healing rostlinky z ní dělají velmi dobrého supporta.",
+  desc:"Strážkyně přírody s kletbami a CC, obětuje survivability za damage."},
+{name:"TwinBlast", role:"Carry", class:"Carry", style:"hybrid", diff:5,
+  desc:"Dvojče s dvojitými pistolemi, rychlý burst, ale nejnáročnější ADC na hraní."},
+{name:"Wraith", role:"Jungle", class:"Assassin", style:"ability", diff:4,
+  desc:"Recon sniper s odhalováním mapy, vyžaduje zkušenou ruku pro maximální dopad."},
+{name:"Wukong", role:"Off", class:"Bruiser", style:"hybrid", diff:3,
+  desc:"Opičí král s klony a holí, mobilní bruiser s trikařskými úniky."},
+{name:"Yin", role:"Jungle", role2:"Off", class:"Assassin", style:"hybrid", diff:4, flex:true,
+  flexNote:"Dá se přesunout i na offlane, kde profituje z 1v1 potenciálu.",
+  desc:"Stínová assassinka s teleporty a burstem, silná v pickách."},
+{name:"Yurei", role:"Jungle", class:"Assassin", style:"hybrid", diff:4,
+  desc:"Duch s kosou, vysoká mobilita a execute potenciál proti zraněným cílům."},
+{name:"Zarus", role:"Off", class:"Bruiser", style:"tank", diff:2,
+  desc:"Drakočlověk s odolným kitem a knockupy, jednoduchý frontline fighter."},
+{name:"Zinx", role:"Carry", role2:"Mid", class:"Carry", style:"hybrid", diff:4, flex:true,
+  flexNote:"Velmi silná na mid lane díky mobilitě a poke, na offlane se příliš nedoporučuje.",
+  desc:"Elektrická rebelka s teleporty a damage-over-time, flexibilní mezi carry a mid."}
+];
+// oprava textového glitchu
+HEROES.find(h=>h.name==="Yurei").desc = "Duch s kosou, vysoká mobilita a execute potenciál proti zraněným cílům.";
+
+/* profil atributů odvozený z class + style (1-5), durable napříč patchi */
+function getProfile(h){
+  const base = {
+    Assassin:{dmg:4,tank:2,mob:5,util:1},
+    Carry:{dmg:4,tank:2,mob:3,util:2},
+    Bruiser:{dmg:3,tank:4,mob:3,util:2},
+    Frontline:{dmg:2,tank:5,mob:2,util:4},
+    Mage:{dmg:5,tank:2,mob:2,util:3},
+    Support:{dmg:2,tank:3,mob:2,util:5}
+  }[h.class];
+  const p = Object.assign({}, base);
+  if(h.style==='tank'){ p.tank=Math.min(5,p.tank+1); p.dmg=Math.max(1,p.dmg-1); }
+  if(h.style==='utility'){ p.util=Math.min(5,p.util+1); }
+  if(h.style==='basic'||h.style==='ability'){ p.dmg=Math.min(5,p.dmg+1); }
+  return p;
+}
+
+/* =========================================================
+   DATA — ETERNALS (patch 1.14 Harbingers of Ruin)
+   ========================================================= */
+const ETERNALS = [
+{name:"Vermis", group:"Harbingers",
+  major:"Každý 3. po sobě jdoucí základní útok na stejného nepřátelského hrdinu (do 2,5 s) udělí bonusové fyzické poškození rovné 3 % (+0,25 %/level) jeho max. zdraví.",
+  minor1:[
+    {n:"Serration", d:"Major Blessing je o 65 % efektivnější na základní útoky, které kriticky zasáhnou."},
+    {n:"Crush", d:"Když zneschopníš nepřátelského hrdinu, udělíš bonusové poškození rovné 5 % jeho max. zdraví."},
+    {n:"Cauterize", d:"Když ti DoT efekt udělí poškození, získáš regeneraci zdraví na 1 s."}
+  ],
+  minor2:[
+    {n:"Melting Point", d:"Udělíš 10 % bonusové poškození cílům s více než 125 fyzickým brněním."},
+    {n:"Breach", d:"Poškození ultimátem snižuje fyzické brnění nepřítele o 30 % na 3 s."},
+    {n:"Sub-Surface", d:"Dostáváš o 10 % méně poškození z AoE schopností."}
+  ],
+  synergy:["Drongo","TwinBlast","Boris","Kwang","Sevarog","Khaimera"]},
+{name:"(2. Harbinger)", group:"Harbingers", unnamed:true,
+  major:"Získáváš 0,5 % (+0,05 %/level) Omnivamp za každých 5 % chybějícího zdraví. Bonus se po zabití nepřátelského hrdinyna 8 s zdvojnásobí.",
+  minor1:[
+    {n:"The Maw", d:"Kritické zásahy udělí navíc 20 % bonusového true damage cílům pod 25 % zdraví."},
+    {n:"Blood Bank", d:"Poškození hrdinům generuje náboje na 3 s; za každých 100 nábojů získáváš 1 % lifestealu."},
+    {n:"Taste of Iron", d:"DoT poškození nepřátelského hrdiny zvýší tvé poškození o 6 % na 3 s."}
+  ],
+  minor2:[
+    {n:"Roses", d:"Za zabití získáš 20 bonusového zlata za každý předchozí kill v zápase."},
+    {n:"Jealousy", d:"Udělíš 10 % bonusové poškození hrdinům, kteří mají více zdraví než ty."},
+    {n:"Leech", d:"Nepřátelé v okolí 400u mají sníženou regeneraci zdraví o 100 % — ty ji získáváš místo nich."}
+  ],
+  note:"Jméno tohoto Eternala dosud nebylo v patch notes potvrzeno — doplň si ho, jakmile ho zjistíš ze hry.",
+  synergy:["Countess","Yurei","Bayle","Kallari"]},
+{name:"Thraex", group:"Primarchs",
+  major:"Označ posledního nepřátelského hrdinu zasaženého základním útokem na 3 s — zvyšuje tvé poškození proti němu a snižuje jeho poškození proti tobě.",
+  minor1:[
+    {n:"Alpha's Court", d:"Udělíš 6 % bonusové poškození, když není žádný spojenec do 800u."},
+    {n:"Savage Strikes", d:"On-hit poškození, které se zvyšuje při útoku na hrdiny, stackuje 3×, a léčí tě podle udělené škody."},
+    {n:"The King", d:"Základní útoky na hrdiny ti přinesou 7 zlata."}
+  ],
+  minor2:[
+    {n:"Ferocity", d:"Získáváš Attack Speed za každou sekundu strávenou v boji s hrdinou, neomezeně stackuje."},
+    {n:"Rallying Roar", d:"Ultimátem uděluješ sobě a spojencům pohybovou rychlost na 4 s."},
+    {n:"Golden Mane", d:"Dostáváš o 12 % méně poškození z neplošných schopností."}
+  ],
+  synergy:["Khaimera","Grux","Wukong","Akeron"]},
+{name:"Nihil", group:"Primarchs",
+  major:"Poškození hrdiny ti udělí Doom na 3 s — postupně rostoucí síla (Physical/Magical Power, brnění), která se permanentně zvyšuje při levelování nebo zabití.",
+  minor1:[
+    {n:"Growing Threat", d:"Od 18. minuty permanentně získáváš +15 % bonusové poškození."},
+    {n:"From the Abyss", d:"Regeneruješ zdraví za sekundu, když jsi v boji nebo mimo viditelnost nepřátel."},
+    {n:"Mana Siphon", d:"Zásah schopností odčerpá manu nepřátelskému hrdinovi."}
+  ],
+  minor2:[
+    {n:"Adaptive Plating", d:"Fyzické poškození ti dává fyzické brnění, magické poškození magické (stackuje 8×)."},
+    {n:"Inescapable", d:"Nepřátelé do 800u, kteří dashují nebo skáčou, jsou zpomaleni."},
+    {n:"Terror", d:"Minioni a monstra ti udělí méně poškození, věže o 15 % méně."}
+  ],
+  synergy:["Sevarog","Bayle","Crunch","Serath"]},
+{name:"Krix", group:"Dreadnoughts",
+  major:"Krix: Získáváš 10 % (+1 %/level) zvýšené maximální zdraví a navíc bonusovou velikost rovnou 0,5 % max. zdraví.",
+  minor1:[
+    {n:"Voracity", d:"Zabití jednotky obnoví 1,25 % max. zdraví."},
+    {n:"Regenerative Tissue", d:"Pokud jsi 8 s nedostal poškození od hrdiny, regeneruješ zdraví za sekundu."},
+    {n:"Festering Wounds", d:"Nepřátelé zraněni tvým DoT efektem mají sníženou léčbu o 45 % na 2 s."}
+  ],
+  minor2:[
+    {n:"Cannibalism", d:"Zabití hrdiny permanentně zvýší tvé max. zdraví o 30."},
+    {n:"Feeding Frenzy", d:"Získáváš Attack Speed za každého nepřátelského hrdinu do 1500u."},
+    {n:"Predator", d:"Zabití camp leadera ti dá bonusové poškození na 20 s (2× déle u Epic monster)."}
+  ],
+  synergy:["Steel","Greystone","Zarus","Muriel"]},
+{name:"Idrisil", group:"Dreadnoughts",
+  major:"Idrisil: Když jsi nad 30 % zdraví a schopnost je dostupná, získáváš zvýšené brnění. Pod 30 % zdraví bonus spotřebuješ za štít rovný 150 % tvého celkového brnění.",
+  minor1:[
+    {n:"Cold Hearted", d:"Nepřátelé, kteří tě basic attackují, mají sníženou pohybovou rychlost (stack 5×)."},
+    {n:"Mending", d:"Po poškození od hrdiny obnovíš 8 % chybějícího zdraví během 3 s."},
+    {n:"Frost Snap", d:"Udělíš 10 % bonusové poškození zneschopněným cílům."}
+  ],
+  minor2:[
+    {n:"Icy Touch", d:"Základní útoky snižují Attack Speed nepřítele (stack 4×)."},
+    {n:"Glacier", d:"Permanentně získáváš magické brnění za každých 300 vydělaného zlata."},
+    {n:"Diamond Tip", d:"Získáváš fyzickou a magickou penetraci za každý dokončený item."}
+  ],
+  synergy:["Riktor","Terra","Steel","Rampage"]},
+{name:"Vesh", group:"Sovereigns",
+  major:"Vesh: Poškození hrdiny schopností přidá DoT efekt rovný 6 % (+0,5 %/min) poškození po dobu 3 s.",
+  minor1:[
+    {n:"Lich", d:"Získáváš magický lifesteal."},
+    {n:"Tithe of Death", d:"Zabití hrdiny ti dá Ability Haste."},
+    {n:"The Tenth Seal", d:"Při dosažení levelu 10 získáváš bonus k poškození ultimátem a Ultimate Haste."}
+  ],
+  minor2:[
+    {n:"Mind Rot", d:"Vesh DoT navíc udělí poškození rovné 2 % aktuálního zdraví cíle."},
+    {n:"Phylactery", d:"Po seslání ultimátu získáš štít rovný 15 % max. many na 4 s."},
+    {n:"Millennia", d:"Každých 60 s se zvyšuje poškození tvého ultimátu o 1 %."}
+  ],
+  synergy:["Gideon","Argus","Lt. Belica","Howitzer"]},
+{name:"Xyris", group:"Sovereigns",
+  major:"Xyris: Permanentně získáváš 0,75 % bonusové poškození za každých 10 zabitých jednotek.",
+  minor1:[
+    {n:"Furor", d:"Vstup do boje s hrdinou ti dá Attack Speed na 4 s."},
+    {n:"Dominance", d:"Zabití hrdiny tě vyléčí o fixní hodnotu + % chybějícího zdraví."},
+    {n:"Iron Will", d:"Léčíš se za 12 % poškození uděleného kritickými zásahy."}
+  ],
+  minor2:[
+    {n:"Cull the Weak", d:"Udělíš +10 % bonusové poškození minionům a monstrům."},
+    {n:"Bone Collector", d:"Zabití hrdiny permanentně zvyšuje Physical/Magical Power (max 20 stacků)."},
+    {n:"Eviscerate", d:"Udělíš +20 % bonusové poškození cílům nad 85 % zdraví."}
+  ],
+  synergy:["Kallari","Wraith","Shinbi","Feng Mao"]},
+{name:"Exarch", group:"Divines",
+  major:"Exarch: Léčení nebo štít (i sebe) udělí cíli Attack Speed a posílí jeho základní útoky o bonusové magické poškození na 4 s.",
+  minor1:[
+    {n:"Illumination", d:"Získáváš regeneraci zdraví rovnou bonusové regeneraci many."},
+    {n:"Preservation", d:"Léčení a štíty, které obdržíš, jsou o 15 % silnější."},
+    {n:"Revelation", d:"Seslání schopnosti zkrátí current cooldown ostatních základních schopností."}
+  ],
+  minor2:[
+    {n:"Fervour", d:"Základní útoky na nepřátelské hrdiny vyléčí tebe i spojence v okolí."},
+    {n:"Omnipresent", d:"Mimo boj získáváš bonusovou pohybovou rychlost."},
+    {n:"Delayed Fate", d:"Část poškození schopnostmi se uloží a je ti udělena jako DoT místo okamžitého poškození."}
+  ],
+  synergy:["Narbash","Muriel","Phase","Dekker"]},
+{name:"Lotus", group:"Divines",
+  major:"Lotus: Každé 2 minuty a při každém zabití náhodně získáváš poškození, Ability Haste, pohybovou rychlost nebo max. zdraví.",
+  minor1:[
+    {n:"Early Bloom", d:"Při dosažení levelu 10 získáváš navíc jeden level."},
+    {n:"Flawless", d:"Poškození schopností vyléčí tebe a spojence v okolí (jednou za seslání)."},
+    {n:"Masterpiece", d:"Zabití dává bonusové poškození a pohybovou rychlost na 12 s (stack 5×)."}
+  ],
+  minor2:[
+    {n:"Immaculate", d:"Nad 90 % zdraví snižuješ utrpěné poškození o 35 %."},
+    {n:"Prima Donna", d:"Udělíš o 12 % více poškození hrdinům, ale i sám dostáváš o 6 % více."},
+    {n:"Fragrance", d:"True damage je o 15 % silnější proti nepřátelům do 800u."}
+  ],
+  synergy:["Mourn","The Fey","Maco","Renna"]},
+{name:"Demiurge", group:"Anomalies",
+  major:"Demiurge: Zvyšuje staty z itemů (mimo passive efekty) o 12 % a poškození z item efektů o 10 %.",
+  minor1:[
+    {n:"Tri-Core", d:"On-hit poškození, jehož typ se náhodně mění mezi fyzickým, magickým a true damage."},
+    {n:"Bloatware", d:"Za každý vlastněný item získáváš poškození i snížení utrpěného poškození."},
+    {n:"Bio-Mechanical Fusion", d:"Za každých 5 magické síly získáváš 1 fyzickou sílu."}
+  ],
+  minor2:[
+    {n:"Cursed Corrupted", d:"Convertuje šanci na kritický zásah na Ability Haste."},
+    {n:"Memory Leak", d:"Seslání schopnosti přidá permanentní max. manu; při 600 many získáváš bonus k pohybové rychlosti."},
+    {n:"Construct", d:"Zvyšuje základní zdraví, manu a fyzickou sílu i jejich růst za level."}
+  ],
+  synergy:["Legion","Crunch","GRIM.exe","Gadget"]},
+{name:"Aion", group:"Anomalies",
+  major:"Aion: Seslání schopnosti dává regeneraci many (stack 5×) a navíc tvé schopnosti generují zlato za poškození hrdinům.",
+  minor1:[
+    {n:"Philosopher", d:"Každých 10 s generuješ zlato; čas se zkracuje s Ability Haste."},
+    {n:"Sacrifice", d:"Zabití jednotky dává regeneraci many, 30× efektivnější u zabití hrdiny."},
+    {n:"Bottomless Vial", d:"Zabití river buffu obnoví nálož lektvaru a dá permanentní magickou sílu."}
+  ],
+  minor2:[
+    {n:"Arcane Resonance", d:"Cooldowny schopností a Philosopher postupují rychleji s regenerací many."},
+    {n:"Perfection", d:"Nad 90 % zdraví získáváš Ability Haste."},
+    {n:"Runic Focus", d:"Magická síla roste s procentem aktuální many."}
+  ],
+  synergy:["Argus","Howitzer","Iggy & Scorch","Morigesh"]}
+];
+const GROUP_INFO = {
+  Harbingers:{desc:"Zánikové entity dokonalosti — pro hrdiny stavící na sustained základních útocích a dlouhých soubojích."},
+  Primarchs:{desc:"Panovačné entity síly a dobývání — mix odolnosti a damage pro hrdiny, kteří se vrhají do boje."},
+  Dreadnoughts:{desc:"Vytrvalé entity odolnosti — pro hrdiny, co chtějí přežít a narušovat nepřátele."},
+  Sovereigns:{desc:"Vznešené entity chaosu a řádu — pro hrdiny stavící na ability damage a burst."},
+  Divines:{desc:"Zářící entity ochrany — pro hrdiny stavící na healování, štítech a obecné utility."},
+  Anomalies:{desc:"Záhadné entity manipulace s realitou — nekonvenční, specializované efekty pro každého."}
+};
+
+/* =========================================================
+   RENDER — FILTERS
+   ========================================================= */
+let activeFilters = { role:'all', class:'all', style:'all', flex:'all', diff:0, search:'' };
+
+function buildChipRow(containerId, list, filterKey, labelFn){
+  const c = document.getElementById(containerId);
+  c.innerHTML='';
+  const allChip = document.createElement('button');
+  allChip.className='chip active'; allChip.textContent = filterKey==='flex' ? t('flexAll') : t( filterKey==='role'?'roleAll':filterKey==='class'?'classAll':'styleAll');
+  allChip.onclick=()=>{ activeFilters[filterKey]='all'; refreshChips(); renderHeroes(); };
+  allChip.dataset.val='all';
+  c.appendChild(allChip);
+  list.forEach(val=>{
+    const chip = document.createElement('button');
+    chip.className='chip'; chip.dataset.val=val;
+    chip.textContent = labelFn(val);
+    chip.onclick=()=>{ activeFilters[filterKey]=val; refreshChips(); renderHeroes(); };
+    c.appendChild(chip);
+  });
+}
+function refreshChips(){
+  ['role','class','style','flex'].forEach(key=>{
+    const map = {role:'filter-role',class:'filter-class',style:'filter-style',flex:'filter-flex'};
+    document.querySelectorAll('#'+map[key]+' .chip').forEach(ch=>{
+      ch.classList.toggle('active', ch.dataset.val===activeFilters[key]);
+    });
+  });
+}
+function buildDiffStars(){
+  const c = document.getElementById('filter-diff'); c.innerHTML='';
+  for(let i=1;i<=5;i++){
+    const b = document.createElement('button');
+    b.textContent='★'; b.dataset.val=i;
+    b.onclick=()=>{ activeFilters.diff = (activeFilters.diff===i)?0:i; renderHeroes(); buildDiffStars(); };
+    if(activeFilters.diff>=i) b.classList.add('active');
+    c.appendChild(b);
+  }
+}
+function buildFilters(){
+  buildChipRow('filter-role', ROLE_LIST, 'role', v=>t('role_'+v));
+  buildChipRow('filter-class', CLASS_LIST, 'class', v=>t('class_'+v));
+  buildChipRow('filter-style', STYLE_LIST, 'style', v=>t('style_'+v));
+  buildChipRow('filter-flex', ['flex'], 'flex', v=>t('flexOnly'));
+  buildDiffStars();
+}
+
+document.getElementById('search-input').addEventListener('input', e=>{
+  activeFilters.search = e.target.value.toLowerCase();
+  renderHeroes();
+});
+document.getElementById('reset-filters').addEventListener('click', ()=>{
+  activeFilters = { role:'all', class:'all', style:'all', flex:'all', diff:0, search:'' };
+  document.getElementById('search-input').value='';
+  buildFilters();
+  renderHeroes();
+});
+
+function heroMatches(h){
+  if(activeFilters.role!=='all' && h.role!==activeFilters.role && h.role2!==activeFilters.role &&
+     !(h.role2 && h.role2.includes(activeFilters.role))) {
+    if(h.role!==activeFilters.role) return false;
+  }
+  if(activeFilters.class!=='all' && h.class!==activeFilters.class) return false;
+  if(activeFilters.style!=='all' && h.style!==activeFilters.style) return false;
+  if(activeFilters.flex==='flex' && !h.flex) return false;
+  if(activeFilters.diff>0 && h.diff!==activeFilters.diff) return false;
+  if(activeFilters.search && !h.name.toLowerCase().includes(activeFilters.search)) return false;
+  return true;
+}
+
+function heroIconHtml(h, size){
+  const color = CLASS_COLOR[h.class];
+  const initials = h.name.split(/[\s&]+/).filter(w=>w.length>0).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  return `<div class="hero-icon" style="background:linear-gradient(155deg, ${color}, ${shade(color,-30)});">${initials}</div>`;
+}
+function shade(hex, percent){
+  let f=parseInt(hex.slice(1),16),t=percent<0?0:255,p=Math.abs(percent)/100;
+  let R=f>>16,G=f>>8&0x00FF,B=f&0x0000FF;
+  return "#"+(0x1000000+(Math.round((t-R)*p)+R)*0x10000+(Math.round((t-G)*p)+G)*0x100+(Math.round((t-B)*p)+B)).toString(16).slice(1);
+}
+
+function renderHeroes(){
+  const grid = document.getElementById('hero-grid');
+  const filtered = HEROES.filter(heroMatches).sort((a,b)=>a.name.localeCompare(b.name));
+  document.getElementById('result-count').textContent = filtered.length ? t('resultCountTpl')(filtered.length) : t('noResults');
+  grid.innerHTML='';
+  filtered.forEach(h=>{
+    const card = document.createElement('div');
+    card.className='hero-card';
+    card.onclick=()=>openHeroModal(h);
+    const roleLabel = t('role_'+h.role) + (h.role2 ? ' / '+ (ROLE_LIST.includes(h.role2)?t('role_'+h.role2):h.role2) : '');
+    card.innerHTML = `
+      ${h.flex?`<div class="badge-flex">FLEX</div>`:''}
+      ${heroIconHtml(h)}
+      <div class="hero-name">${h.name}</div>
+      <div class="hero-meta"><span class="class-dot" style="background:${CLASS_COLOR[h.class]}"></span>${t('class_'+h.class)}</div>
+      <div class="hero-meta">${roleLabel}</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+/* =========================================================
+   HERO MODAL + RADAR CHART (SVG)
+   ========================================================= */
+function radarSVG(profile){
+  const labels = [t('attr_dmg'), t('attr_tank'), t('attr_mob'), t('attr_util')];
+  const vals = [profile.dmg, profile.tank, profile.mob, profile.util];
+  const n = 4, R = 90, cx=120, cy=110;
+  function pt(i, val){
+    const ang = (Math.PI*2*i/n) - Math.PI/2;
+    const r = (val/5)*R;
+    return [cx + r*Math.cos(ang), cy + r*Math.sin(ang)];
+  }
+  let gridPolys='';
+  for(let lvl=1; lvl<=5; lvl++){
+    let pts=[];
+    for(let i=0;i<n;i++){ pts.push(pt(i, lvl)); }
+    gridPolys += `<polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#26303f" stroke-width="1"/>`;
+  }
+  let axes='';
+  for(let i=0;i<n;i++){ const p = pt(i,5); axes += `<line x1="${cx}" y1="${cy}" x2="${p[0]}" y2="${p[1]}" stroke="#26303f" stroke-width="1"/>`; }
+  let dataPts=[];
+  for(let i=0;i<n;i++){ dataPts.push(pt(i, vals[i])); }
+  const dataPoly = `<polygon points="${dataPts.map(p=>p.join(',')).join(' ')}" fill="rgba(255,122,61,0.28)" stroke="#ff7a3d" stroke-width="2"/>`;
+  let labelEls='';
+  for(let i=0;i<n;i++){
+    const p = pt(i, 5.9);
+    labelEls += `<text x="${p[0]}" y="${p[1]}" fill="#8b97a8" font-size="10" text-anchor="middle" font-weight="700">${labels[i]}</text>`;
+  }
+  return `<svg viewBox="0 0 240 230" width="240" height="230">${gridPolys}${axes}${dataPoly}${labelEls}</svg>`;
+}
+
+function openHeroModal(h){
+  const profile = getProfile(h);
+  const color = CLASS_COLOR[h.class];
+  const roleLabel = t('role_'+h.role) + (h.role2 ? ' / '+(ROLE_LIST.includes(h.role2)?t('role_'+h.role2):h.role2) : '');
+  const initials = h.name.split(/[\s&]+/).filter(w=>w.length>0).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  const stars = '★'.repeat(h.diff) + '☆'.repeat(5-h.diff);
+  document.getElementById('hero-modal').innerHTML = `
+    <button class="modal-close" onclick="closeModal('hero-modal-overlay')">✕</button>
+    <div class="modal-head">
+      <div class="modal-icon" style="background:linear-gradient(155deg, ${color}, ${shade(color,-30)});">${initials}</div>
+      <div class="modal-title">
+        <h2>${h.name}</h2>
+        <div class="tagrow">
+          <span class="tagpill">${roleLabel}</span>
+          <span class="tagpill">${t('class_'+h.class)}</span>
+          <span class="tagpill">${t('style_'+h.style)}</span>
+          ${h.flex?`<span class="tagpill" style="color:var(--gold); border-color:var(--gold);">FLEX PICK</span>`:''}
+        </div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div>
+        <p class="modal-desc">${h.desc}</p>
+        <p style="margin-top:14px; font-size:12px; color:var(--text-dim);">${t('diffLabel')}: <span style="color:var(--gold); letter-spacing:2px;">${stars}</span></p>
+        ${h.flexNote?`<div class="flex-note"><b>${t('flexNoteLabel')}</b> ${h.flexNote}</div>`:''}
+      </div>
+      <div class="radar-wrap">
+        <div class="radar-label">${t('attrLabel')}</div>
+        ${radarSVG(profile)}
+      </div>
+    </div>
+  `;
+  openModal('hero-modal-overlay');
+}
+
+function openModal(id){ document.getElementById(id).classList.add('active'); }
+function closeModal(id){ document.getElementById(id).classList.remove('active'); }
+document.querySelectorAll('.modal-overlay').forEach(ov=>{
+  ov.addEventListener('click', e=>{ if(e.target===ov) ov.classList.remove('active'); });
+});
+
+/* =========================================================
+   ETERNALS RENDER
+   ========================================================= */
+function renderEternals(){
+  const root = document.getElementById('eternal-groups');
+  root.innerHTML='';
+  const groups = [...new Set(ETERNALS.map(e=>e.group))];
+  groups.forEach(g=>{
+    const sec = document.createElement('div');
+    sec.className='group-section';
+    sec.innerHTML = `<div class="group-title">${g}</div><div class="group-desc">${GROUP_INFO[g].desc}</div><div class="eternal-grid"></div>`;
+    const grid = sec.querySelector('.eternal-grid');
+    ETERNALS.filter(e=>e.group===g).forEach(e=>{
+      const card = document.createElement('div');
+      card.className='eternal-card';
+      card.onclick=()=>openEternalModal(e);
+      card.innerHTML = `
+        <div class="eternal-group-tag">${g}</div>
+        <div class="eternal-name">${e.name}</div>
+        <div class="eternal-major-preview">${e.major.slice(0,90)}…</div>
+      `;
+      grid.appendChild(card);
+    });
+    root.appendChild(sec);
+  });
+}
+function openEternalModal(e){
+  function minorHtml(list){
+    return list.map(m=>`<div class="minor-item"><b>${m.n}:</b> ${m.d}</div>`).join('');
+  }
+  document.getElementById('eternal-modal').innerHTML = `
+    <button class="modal-close" onclick="closeModal('eternal-modal-overlay')">✕</button>
+    <div class="modal-head" style="border-bottom:1px solid var(--line);">
+      <div>
+        <div class="eternal-group-tag">${e.group}</div>
+        <h2 style="font-family:var(--font-display); font-size:30px; text-transform:uppercase;">${e.name}</h2>
+      </div>
+    </div>
+    <div class="eternal-modal-body">
+      ${e.note?`<div class="flex-note">${e.note}</div>`:''}
+      <div class="blessing-block">
+        <h4>${t('eternalMajor')}</h4>
+        <div class="major-box">${e.major}</div>
+      </div>
+      <div class="blessing-block">
+        <h4>${t('eternalMinor1')}</h4>
+        <div class="minor-set">${minorHtml(e.minor1)}</div>
+      </div>
+      <div class="blessing-block">
+        <h4>${t('eternalMinor2')}</h4>
+        <div class="minor-set">${minorHtml(e.minor2)}</div>
+      </div>
+      <div class="blessing-block">
+        <h4>${t('eternalSynergy')}</h4>
+        <div class="synergy-row">${e.synergy.map(n=>`<span class="synergy-chip">${n}</span>`).join('')}</div>
+      </div>
+    </div>
+  `;
+  openModal('eternal-modal-overlay');
+}
+
+/* =========================================================
+   QUIZ LOGIC
+   ========================================================= */
+let quizState = { type:null, lane:null, qIndex:0, scores:{}, rangePref:null, stylePref:null, diffPref:null };
+
+document.getElementById('quiz-general-btn').onclick = ()=>startQuiz('general');
+document.getElementById('quiz-lane-btn').onclick = ()=>{
+  document.getElementById('lane-select').style.display='block';
+};
+document.getElementById('lane-back').onclick = ()=>{ document.getElementById('lane-select').style.display='none'; };
+
+function buildLanePicks(){
+  const grid = document.getElementById('lane-pick-grid'); grid.innerHTML='';
+  ROLE_LIST.forEach(r=>{
+    const d = document.createElement('div');
+    d.className='lane-pick'; d.textContent = t('laneNames')[r];
+    d.onclick=()=>startQuiz('lane', r);
+    grid.appendChild(d);
+  });
+}
+
+function startQuiz(type, lane){
+  quizState = { type, lane, qIndex:0, scores:{}, rangePref:null, stylePref:null, diffPref:null };
+  setQuizStage('quiz-running');
+  renderQuizQuestion();
+}
+function setQuizStage(id){
+  document.querySelectorAll('.quiz-stage').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+document.getElementById('quiz-cancel').onclick = ()=>setQuizStage('quiz-launch');
+document.getElementById('quiz-restart').onclick = ()=>setQuizStage('quiz-launch');
+
+function getQuestions(){
+  if(quizState.type==='general') return t('quizQGeneral');
+  return t('quizQLane')[quizState.lane];
+}
+function renderQuizQuestion(){
+  const qs = getQuestions();
+  const box = document.getElementById('quiz-question-box');
+  const progress = document.getElementById('quiz-progress-bar');
+  progress.style.width = (quizState.qIndex/qs.length*100)+'%';
+  if(quizState.qIndex>=qs.length){ finishQuiz(); return; }
+  const q = qs[quizState.qIndex];
+  box.innerHTML = `<h3>${q.q}</h3><div class="quiz-options">${q.opts.map((o,i)=>`<button class="quiz-opt" data-i="${i}">${o.t}</button>`).join('')}</div>`;
+  box.querySelectorAll('.quiz-opt').forEach(btn=>{
+    btn.onclick = ()=>{
+      const opt = q.opts[parseInt(btn.dataset.i)];
+      applyAnswer(opt.v);
+      quizState.qIndex++;
+      renderQuizQuestion();
+    };
+  });
+}
+function applyAnswer(v){
+  Object.keys(v).forEach(k=>{
+    if(k==='diff'){ quizState.diffPref = v.diff; }
+    else if(k==='rangePref'){ quizState.rangePref = v.rangePref; }
+    else if(k==='style'){ quizState.stylePref = v.style; }
+    else { quizState.scores[k] = (quizState.scores[k]||0) + v[k]; }
+  });
+}
+function finishQuiz(){
+  let pool = HEROES.slice();
+  if(quizState.type==='lane'){
+    pool = pool.filter(h=>h.role===quizState.lane || h.role2===quizState.lane || (h.role2 && h.role2.includes(quizState.lane)));
+  }
+  // score by class match
+  pool = pool.map(h=>{
+    let score = quizState.scores[h.class]||0;
+    if(quizState.diffPref){ score -= Math.abs(h.diff - quizState.diffPref)*0.6; }
+    if(quizState.stylePref){
+      if(quizState.stylePref==='basic' && h.style==='basic') score+=2;
+      if(quizState.stylePref==='ability' && h.style==='ability') score+=2;
+      if(quizState.stylePref==='hybrid' && h.style==='hybrid') score+=2;
+    }
+    return {h, score};
+  }).sort((a,b)=>b.score-a.score);
+  const top = pool.slice(0,3).map(p=>p.h);
+  renderQuizResult(top);
+  setQuizStage('quiz-result');
+}
+function renderQuizResult(top){
+  const list = document.getElementById('quiz-result-list');
+  list.innerHTML='';
+  if(top.length===0){ list.innerHTML = `<p style="color:var(--text-dim);">${t('noResults')}</p>`; return; }
+  top.forEach(h=>{
+    const color = CLASS_COLOR[h.class];
+    const initials = h.name.split(/[\s&]+/).filter(w=>w.length>0).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+    const card = document.createElement('div');
+    card.className='result-hero-card';
+    card.onclick=()=>openHeroModal(h);
+    card.innerHTML = `
+      <div class="hero-icon" style="width:64px;height:64px;font-size:22px;flex-shrink:0;background:linear-gradient(155deg, ${color}, ${shade(color,-30)});">${initials}</div>
+      <div>
+        <div style="font-weight:800; font-size:16px; text-transform:uppercase;">${h.name}</div>
+        <div style="font-size:12px; color:var(--text-dim); margin-top:3px;">${t('class_'+h.class)} · ${t('role_'+h.role)}</div>
+        <div style="font-size:12.5px; color:#cdd5e0; margin-top:6px;">${h.desc}</div>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+/* =========================================================
+   NAV + LANG
+   ========================================================= */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('view-'+btn.dataset.view).classList.add('active');
+  };
+});
+function applyI18nStatic(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.getAttribute('data-i18n');
+    if(I18N[LANG][key]) el.textContent = I18N[LANG][key];
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+    const key = el.getAttribute('data-i18n-ph');
+    if(I18N[LANG][key]) el.placeholder = I18N[LANG][key];
+  });
+}
+document.getElementById('lang-cz').onclick = ()=>setLang('cz');
+document.getElementById('lang-sk').onclick = ()=>setLang('sk');
+function setLang(l){
+  LANG=l;
+  document.getElementById('lang-cz').classList.toggle('active', l==='cz');
+  document.getElementById('lang-sk').classList.toggle('active', l==='sk');
+  applyI18nStatic();
+  buildFilters();
+  renderHeroes();
+  buildLanePicks();
+  setQuizStage('quiz-launch');
+  document.getElementById('lane-select').style.display='none';
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+buildFilters();
+renderHeroes();
+renderEternals();
+buildLanePicks();
+</script>
+</body>
+</html>
