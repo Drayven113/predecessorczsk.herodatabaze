@@ -199,7 +199,7 @@
   },
   {
     id: 'eden', n: 'Eden', cls: 'Marksman', roles: ['Carry'], flex: [],
-    diff: 3, range: 'Hybrid', amber: 10300, plat: 1000, res: 'Žár',
+    diff: 3, range: 'Hybrid', amber: 8600, plat: 1000, res: 'Žár',
     icon: th('Portrait_Eden.png', 200), art: th('Cutout_Eden.png', 600),
     stats: S(645, 110, 0, 0, 49, 4, 100, 0, 1, 1500, 24, 4.6, 23, 0.95, 1.1, 0.15, 0, 0, 665),
     desc: 'Probuzená živoucí zbraň z Axiune. Carry přepínající mezi střeleckým a melee postojem; ultimátku nabíjí žár z boje.',
