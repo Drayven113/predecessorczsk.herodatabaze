@@ -17,17 +17,6 @@ data/quiz.js          otázky kvízů
 .github/workflows/static.yml   nasazení na GitHub Pages (beze změny)
 ```
 
-Nepotřebuje žádný build ani knihovny – GitHub Pages ji servíruje tak, jak je.
-
-## Jak upravit data
-
-- **Staty hrdiny**: v `data/heroes.js` najdi `id: 'jmeno'` a uprav `stats: S(...)`. Pořadí čísel je popsané v hlavičce souboru.
-- **Schopnost**: řádek `['Q', 'Název', 'cooldown', 'cena', 'popis']`.
-- **Flex lajna**: do `flex: [...]` přidej `{ r: 'Offlane', src: 'odkud to víme' }`.
-- **Nový hrdina**: zkopíruj celý blok jiného hrdiny, změň `id`, `n` a ostatní hodnoty a přidej `isNew: true, patch: '1.18'`.
-
-Odkazy přímo na hrdinu nebo Eternala: `…/#hero/scarlett`, `…/#eternal/knell`.
-
 ## Zdroje
 
 - [predecessor.wiki.gg](https://predecessor.wiki.gg) – ikony, schopnosti a základní staty
